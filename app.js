@@ -180,4 +180,58 @@ unction rebuildList(item) {
         </div>
         `;
     }
+    el.querySelector('[data-action=like]').addEventListener('click', (e)=>{
+        fetch(`${baseUrl}/posts/${item.id}/likes`, {
+            method: 'POST'
+        }).then(
+            response => {
+                if (!response.ok) {
+                    throw new Error(response.statusText);
+                }
+                return response.json();
+            },
+        ).then(
+            data => {
+                el.querySelector('[data-action=like]').textContent=`👍🏼 ${data}`;
+            }
+        ).catch(error => {
+            console.log(error);
+        })
+    });
+
+    el.querySelector('[data-action=dislike]').addEventListener('click', (e)=>{
+        fetch(`${baseUrl}/posts/${item.id}/likes/`, {
+                method: 'DELETE'
+        }).then(response => {
+            if (!response.ok) {
+                throw new Error(response.statusText);
+            }
+                return response.json();
+            },
+            ).then(data => {
+                el.querySelector('[data-action=like]').textContent=`👍🏼 ${data}`;
+            }
+            ).catch(error => {
+                console.log(error);
+            })
+        
+    });
+
+
+    el.querySelector('[data-action=delete]').addEventListener('click', (e)=>{
+        fetch(`${baseUrl}/posts/${item.id}`, {
+            method: 'DELETE'
+        }).then(
+            response => {
+                if (!response.ok) {
+                    throw new Error(response.statusText);
+                }
+            },
+        ).catch(error => {
+            console.log(error);
+        });
+        postsEl.removeChild(el);
+    });
+    return el;
+    
 };
