@@ -111,6 +111,77 @@ formEl.addEventListener('submit', e => {
 
 rootEl.appendChild(formEl);
 
+const postsEl = document.createElement('div');
+rootEl.appendChild(postsEl)
+
+const oldPostBtn = document.createElement('button');
+oldPostBtn.textContent = 'Предыдущие записи';
+oldPostBtn.className = 'btn btn-info btn-block';
+oldPostBtn.addEventListener('click', () => {
+    OldPosts()
+    oldPostBtn.style.display = "none";
+});
+rootEl.appendChild(oldPostBtn);
+
+function OldPosts() {
+    fetch(`${baseUrl}/posts/seenPosts/${lastSeenId}`)
+        .then(
+            response => {
+                if (!response.ok) {
+                    throw new Error(response.statusText);
+                }
+                return response.json();
+            }
+        ).then(
+            data => {
+                console.log(data);
+                renderOldPosts(data);
+            }
+        ).catch(error => {
+            console.log(error);
+        });
+}
+
+
+
+function renderOldPosts(data) {
+    data.reverse();
+    if (data.length < 5) {
+        oldPostBtn.style.display = "none";
+        if (data.length === 0) {
+            return;
+        }
+    } else {
+        fetch(`${baseUrl}/posts/poll-seenPosts/${data[data.length - 1].id}`)
+            .then(
+                response => {
+                    if (!response.ok) {
+                        throw new Error(response.statusText);
+                    }
+                    return response.text();
+                },
+            ).then(
+                data => {
+                    console.log(data);
+                    if (data === 'true') {
+                        ddOldPostsButtonEl.style.display = "block";
+                    };
+                }
+            ).catch(error => {
+                console.log(error);
+            })
+    }
+
+    if (firstSeenId === 0) {
+        firstSeenId = data[0].id;
+    }
+    lastSeenId = data[data.length - 1].id;
+
+    for (const item of data) {
+        postsEl.appendChild(rebuildList(item));
+    }
+}
+
 
 function renderNewPosts(data) {
     if (data.length === 0) {
