@@ -198,7 +198,7 @@ function renderNewPosts(data) {
     }
 }
 
-unction rebuildList(item) {
+function rebuildList(item) {
     const el = document.createElement('div');
     el.className = 'card-posts';
 
@@ -306,3 +306,49 @@ unction rebuildList(item) {
     return el;
     
 };
+
+const newPostsBtn = document.createElement('button');
+newPostsBtn.textContent = `Показать новые записи`;
+newPostsBtn.className = 'btn btn-info btn-block';
+newPostsBtn.style.display = "none";
+newPostsBtn.addEventListener('click', () => {
+    fetch(`${baseUrl}/posts/newPosts/${firstSeenId}`)
+        .then(
+            response => {
+                if (!response.ok) {
+                    throw new Error(response.statusText);
+                }
+                return response.json();
+            }
+        ).then(
+            data => {
+                newPostsBtn.style.display = "none";
+                console.log(data);
+                renderNewPosts(data);
+            }
+        ).catch(error => {
+            console.log(error);
+        });
+});
+rootEl.appendChild(newPostsBtn);
+
+setInterval(() => {
+    fetch(`${baseUrl}/posts/poll/${firstSeenId}`)
+        .then(
+            response => {
+                if (!response.ok) {
+                    throw new Error(response.statusText);
+                }
+
+                return response.text();
+            }
+        ).then(data => {
+            if (data === 'false') {
+                return;
+            }
+            newPostsBtn.style.display = "block";
+        }).catch(error => {
+            console.log(error);
+        });
+
+}, 5000)
