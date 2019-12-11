@@ -20,50 +20,7 @@ formEl.innerHTML = `
 `;
 rootEl.appendChild(formEl);
 
-const contentEl = formEl.querySelector('[data-id=content]');
-contentEl.value = localStorage.getItem('content');
-contentEl.addEventListener('input', e => {
-    localStorage.setItem('content', contentEl.value);
-});
-
-const typeEl = formEl.querySelector('[data-id=type]');
-typeEl.value = localStorage.getItem('type') || 'regular';
-typeEl.addEventListener('input', e => {
-    localStorage.setItem('type', typeEl.value);
-});
-
-
-formEl.addEventListener('submit', e => {
-    e.preventDefault();
-
-    const data = {
-        content: contentEl.value,
-        type: typeEl.value,
-    };
-    fetch(`${baseUrl}/posts`, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(data),
-
-    }).then(response => {
-        if (!response.ok) {
-            throw new Error(response.statusText);
-        }
-
-        return response.json();
-    }).then(data => {
-        contentEl.value = '';
-        typeEl.value = 'regular';
-        localStorage.clear();
-        renderNewPosts(data);
-    }
-    ).catch(error => {
-        console.log(error);
-    });
-});
-
+OldPosts();
 
 const contentEl = formEl.querySelector('[data-id=content]');
 contentEl.value = localStorage.getItem('content');
@@ -110,6 +67,32 @@ formEl.addEventListener('submit', e => {
 });
 
 rootEl.appendChild(formEl);
+
+
+const newPostsBtn = document.createElement('button');
+newPostsBtn.textContent = `Показать новые записи`;
+newPostsBtn.className = 'btn btn-info btn-block';
+newPostsBtn.style.display = "none";
+newPostsBtn.addEventListener('click', () => {
+    fetch(`${baseUrl}/posts/newPosts/${firstSeenId}`)
+        .then(
+            response => {
+                if (!response.ok) {
+                    throw new Error(response.statusText);
+                }
+                return response.json();
+            }
+        ).then(
+            data => {
+                newPostsBtn.style.display = "none";
+                console.log(data);
+                renderNewPosts(data);
+            }
+        ).catch(error => {
+            console.log(error);
+        });
+});
+rootEl.appendChild(newPostsBtn);    
 
 const postsEl = document.createElement('div');
 rootEl.appendChild(postsEl)
@@ -307,30 +290,6 @@ function rebuildList(item) {
     
 };
 
-const newPostsBtn = document.createElement('button');
-newPostsBtn.textContent = `Показать новые записи`;
-newPostsBtn.className = 'btn btn-info btn-block';
-newPostsBtn.style.display = "none";
-newPostsBtn.addEventListener('click', () => {
-    fetch(`${baseUrl}/posts/newPosts/${firstSeenId}`)
-        .then(
-            response => {
-                if (!response.ok) {
-                    throw new Error(response.statusText);
-                }
-                return response.json();
-            }
-        ).then(
-            data => {
-                newPostsBtn.style.display = "none";
-                console.log(data);
-                renderNewPosts(data);
-            }
-        ).catch(error => {
-            console.log(error);
-        });
-});
-rootEl.appendChild(newPostsBtn);
 
 setInterval(() => {
     fetch(`${baseUrl}/posts/poll/${firstSeenId}`)
