@@ -1,5 +1,5 @@
 // const baseUrl = 'http://localhost:9999';
-const baseUrl = 'https://nikolay0951-api.herokuapp.com/';
+const baseUrl = 'https://nikolay0951-api.herokuapp.com';
 
 let firstSeenId = 0;
 let lastSeenId = 0;
